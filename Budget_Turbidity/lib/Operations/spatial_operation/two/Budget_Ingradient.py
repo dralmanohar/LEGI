@@ -226,11 +226,13 @@ class Budget_Integrand:
 
     def SurfacevalueMul(self, A,B, bed):
 
+        print ("SurfacevalueMul = \t", A.shape, "\t", B.shape)
         nx, ny, nz = A.shape
         C = np.zeros(nx)
 
         for i in range(len(bed)):
             C[i] = A[i, bed[i], 0]* B[i]
+        print ("SurfacevalueMul C = \t", C.shape)
         return C
 
 

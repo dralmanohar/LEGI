@@ -20,8 +20,9 @@ import argparse
 import sys
 
 class Budget_seperator:
-    def __init__(self, path,  budget, dim, parameter, value, file_name = None):
+    def __init__(self, flow_type,  path,  budget, dim, parameter, value, file_name = None):
         
+        self.flow_type = flow_type
         self.path = path
         self.dim = dim
         self.budget = budget
@@ -33,59 +34,37 @@ class Budget_seperator:
         if self.budget=='Mass':
             if self.dim == '2D':
                 
-                sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
-                pathsrc = sys.path[0]
+                if self.flow_type=='Turbidity':
+                    sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
+                    pathsrc = sys.path[0]
+                    #print ("pathsrc for the file = \t", pathsrc)
+                    path_libL = os.path.join(pathsrc, 'lib')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
+                    path_libS = os.path.join(path_libL, 'Mass_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
+                    path_lib = os.path.join(path_libS, 'two')
 
-                #print ("pathsrc for the file = \t", pathsrc)
-                path_libL = os.path.join(pathsrc, 'lib')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
-                path_libS = os.path.join(path_libL, 'Mass_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
-                path_lib = os.path.join(path_libS, 'two') 
-
-                sys.path.append(path_lib)
-                
-               # sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
-               # pathsrc = sys.path[0]
-               # path_lib = os.path.join(pathsrc, 'Mass_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
-               # path_lib = os.path.join(path_lib, 'two') 
-
-               # sys.path.append(path_lib)
-                
-                from Mass_Budget import Mass_Budget
-
-                self.Mass = Mass_Budget(self.path, self.dim, self.budget, self.parameter, self.value)
+                    sys.path.append(path_lib)
+                    from Mass_Budget import Mass_Budget
+                    self.Mass = Mass_Budget(self.path, self.dim, self.budget, self.parameter, self.value)
             
             elif self.dim == '3D':
-                sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
-                pathsrc = sys.path[0]
+                if self.flow_type=='Turbidity':
+                    sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
+                    pathsrc = sys.path[0]
 
-                #print ("pathsrc for the file = \t", pathsrc)
-                path_libL = os.path.join(pathsrc, 'lib')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
-                path_libS = os.path.join(path_libL, 'Mass_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
-                path_lib = os.path.join(path_libS, 'three') 
+                    #print ("pathsrc for the file = \t", pathsrc)
+                    path_libL = os.path.join(pathsrc, 'lib')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
+                    path_libS = os.path.join(path_libL, 'Mass_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
+                    path_lib = os.path.join(path_libS, 'three')
+                    sys.path.append(path_lib)
+                    from Mass_Budget import Mass_Budget
+                    self.Mass = Mass_Budget(self.path, self.dim, self.budget, self.parameter, self.value)
 
-                sys.path.append(path_lib)
-                
-                #sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
-                #pathsrc = sys.path[0]
-                #path_lib = os.path.join(pathsrc, 'Mass_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
-                #path_lib = os.path.join(path_lib, 'three') 
-
-                #sys.path.append(path_lib)
-                
-                from Mass_Budget import Mass_Budget
-
-                self.Mass = Mass_Budget(self.path, self.dim, self.budget, self.parameter, self.value)
-
-#                sys.path.append('./Mass_Budget/')
- #               from three.Mass_Budget import Mass_Budget
-  #              self.Mass = Mass_Budget(path, budget, parameter, value)
         elif self.budget == 'Momentum':
             
             if self.dim == '2D':
                 sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
                 pathsrc = sys.path[0]
 
-                #print ("pathsrc for the file = \t", pathsrc)
                 path_libL = os.path.join(pathsrc, 'lib')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
                 path_libS = os.path.join(path_libL, 'Momentum_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
                 path_lib = os.path.join(path_libS, 'two') 
@@ -95,28 +74,25 @@ class Budget_seperator:
                 print ("path for the 2D momentum budget = \t", sys.path)
 
                 from Momentum_Budget import Momentum_Budget
-                self.Momentum = Momentum_Budget(self.path, self.dim, self.budget, self.parameter, self.value)
+                
+                self.Momentum = Momentum_Budget(self.flow_type, self.path, self.dim, self.budget, self.parameter, self.value)
             
             elif self.dim == '3D':
                 sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
                 pathsrc = sys.path[0]
-
-                #print ("pathsrc for the file = \t", pathsrc)
+                
+                print ("Manohar in 3D budget ")
                 path_libL = os.path.join(pathsrc, 'lib')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
                 path_libS = os.path.join(path_libL, 'Momentum_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
                 path_lib = os.path.join(path_libS, 'three') 
 
                 sys.path.append(path_lib)
-
-    #            sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))
-#                pathsrc = sys.path[0]
- #               path_lib = os.path.join(pathsrc, 'Momentum_Budget')#sys.path[0] + '/' + 'Momentun_Budget' #+ '/' + 'two'
-  #              path_lib = os.path.join(path_lib, 'three')
-   #             sys.path.append(path_lib)
+                
+                print ("path Momentum budget= \t", sys.path )
                 
                 from Momentum_Budget import Momentum_Budget
                 
-                self.Momentum = Momentum_Budget(self.path, self.dim, self.budget, self.parameter, self.value)
+                self.Momentum = Momentum_Budget(self.flow_type, self.path, self.dim, self.budget, self.parameter, self.value)
         
         elif self.budget == 'Movie':
                 sys.path.insert(1, "/".join(os.path.realpath(__file__).split("/")[0]))

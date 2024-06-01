@@ -53,10 +53,8 @@ class Mass_Budget:
         tread   = BF.tread
         Xb = BF.Xb
 
-        n1d, n2d = xbed.shape
+        n1d, n2d = xbed.shape#len(xbed)
         Nt = len(T)
-        
-        print ("n1d = \t", n1d, "\t n2d = \t", n2d)
 
         print ("n1d = \t", n1d)
         print ("Nt = \t", Nt)
@@ -65,17 +63,15 @@ class Mass_Budget:
         dt          = np.zeros(Nt)
         dybeddt_l   = np.zeros((n1d, n2d, Nt))
         dybeddt_h   = np.zeros((n1d, n2d, Nt))
-        balance     = np.zeros((n1d, n2d, Nt))
-        xf          = np.zeros((Nt))
+        balance     = np.zeros((n1d, Nt))
+        xf          = np.zeros(Nt)
 
-        xmax = np.amax(np.mean(xbed, axis = 1))
+        xmax = np.amax(xbed)
         ymax = np.amax(Yb[0, :, 0])
-
-        #xfront_mean = np.mean(xbed, axis = 1)
 
         k = -1
 
-        prec = 9
+        prec = 13
 
         print ("Path in Mass budget = \t", path)
 
@@ -88,8 +84,7 @@ class Mass_Budget:
             print("Directory '%s' created successfully" % direc)
         except OSError as error:
             print("Directory '%s' can not be created" % direc) 
-        
-        T = T[10:14]
+
         for t in T:
 
             print ("reading time: %s s"%t)
@@ -107,14 +102,8 @@ class Mass_Budget:
             else:
                 dt[k] = dt[k-1]
 
-            #Xbf = Xb[:, :, 0]
-            #alphaA = alpha[:, :, 0]
 
-
-            xf[k] = np.mean(np.max(Xb[np.where(alpha>1e-3)]))
-
-           # print ("Shape of xf[k] = \t", xf[k].shape)
-
+            xf[k] = np.max(Xb[np.where(alpha>1e-3)])
             range_inte = np.where(alpha[:, 0, 0]>1e-3)[0]
             inte = range_inte[-1]
 
@@ -124,73 +113,58 @@ class Mass_Budget:
             xzero = np.where(xbed>0)[0]
             index_xzero =  xzero[0]
 
-            print ("print shape alpha = \t", alpha.shape)
+            print ("print xzero = \t", index_xzero)
             print ("print inte = \t", inte)
-            print ("print range_inte = \t", range_inte)
-            print ("print index x zero = \t", index_xzero)
-            print ("xfk = \t", xf[k])
-            print ("xfk = \t", np.mean(xf[k]))
-     
 
             f.write('%d \t %g \n'%(time[k], xf[k]))
-
 
             BI   = Budget_Integrand(xbed, Yb, alpha=alpha)
             BIdt = Budget_Integrand(xbed, Yb, alpha=alphadt)
 
-            #if xf[k]>=0 and xf[k]<=xmax - 0.5*ymax:
-            if xf[k]<=xmax - 0.5*ymax:
-                #xf[k] = np.max(Xb[np.where(alpha>1e-3)])
-                print ("Manohr in the loop")
+            if xbed[index_xzero]>=0 and xbed[inte]<=xmax - 0.5*ymax:
+                xf[k] = np.max(Xb[np.where(alpha>1e-3)])
+
                 ############### find the bed height
 
-                ybed_l   = np.zeros((n1d, n2d))
-                ybeddt_l = np.zeros((n1d, n2d))
-                ybed_h   = np.zeros((n1d, n2d))
-                ybeddt_h = np.zeros((n1d, n2d))
+                ybed_l   = np.zeros((n1d))
+                ybeddt_l = np.zeros((n1d))
+                ybed_h   = np.zeros((n1d))
+                ybeddt_h = np.zeros((n1d))
 
-                bed_l   = np.zeros((n1d, n2d), dtype = int)
-                beddt_l = np.zeros((n1d, n2d), dtype = int)
-                bed_h   = np.zeros((n1d, n2d), dtype = int)
-                beddt_h = np.zeros((n1d, n2d), dtype = int)
+                bed_l   = np.zeros((n1d), dtype = int)
+                beddt_l = np.zeros((n1d), dtype = int)
+                bed_h   = np.zeros((n1d), dtype = int)
+                beddt_h = np.zeros((n1d), dtype = int)
 
                 bed_l, bed_h, ybed_l, ybed_h         = BI.bed_height()
                 beddt_l, beddt_h, ybeddt_l, ybeddt_h = BIdt.bed_height()
 
                 ########### derivative with space
-               
-                print ("ybed_l = \t", ybed_l.shape)
-                print ("ybed_h = \t", ybed_h.shape)
-                print ("xbed = \t", xbed.shape)
-               
+                
                 dybdx_l = BI.x_deri(ybed_l, xbed)
                 dybdx_h = BI.x_deri(ybed_h, xbed)
 
                 dybdxdt_l = BIdt.x_deri(ybeddt_l, xbed)
                 dybdxdt_h = BIdt.x_deri(ybeddt_h, xbed)
 
-
                 ########## derivative with time
 
-                dybdt_l = np.zeros((n1d, n2d))
-                dybdt_h = np.zeros((n1d, n2d))
+                dybdt_l = np.zeros(n1d)
+                dybdt_h = np.zeros(n1d)
 
                 dybdt_l = (ybeddt_l - ybed_l) / dt[k]
                 dybdt_h = (ybeddt_h - ybed_h) / dt[k]
 
-                print ("dybdt_l = \t", dybdt_l.shape)
-                print ("bed_l = \t", bed_l.shape)
-
-                dybeddt_l[:, :, k] = BI.SurfacevalueMul(alpha[:, :, :], dybdt_l, bed_l)
-                dybeddt_h[:, :, k] = BI.SurfacevalueMul(alpha[:, :, :], dybdt_h, bed_h)
+                dybeddt_l[:, k] = BI.SurfacevalueMul(alpha[:, :, :], dybdt_l, bed_l)
+                dybeddt_h[:, k] = BI.SurfacevalueMul(alpha[:, :, :], dybdt_h, bed_h)
 
                 ######### nonlinear terms
 
-                dybdx_uphi_l = np.zeros((n1d, n2d))
-                dybdx_uphi_h = np.zeros((n1d, n2d))
+                dybdx_uphi_l = np.zeros(n1d)
+                dybdx_uphi_h = np.zeros(n1d)
 
-                vphi_l = np.zeros((n1d, n2d))
-                vphi_h = np.zeros((n1d, n2d))
+                vphi_l = np.zeros(n1d)
+                vphi_h = np.zeros(n1d)
 
                 uphi = alpha*Ua[0, :, :, :]
                 vphi = alpha*Ua[1, :, :, :]
@@ -206,9 +180,9 @@ class Mass_Budget:
 
                 ############## Storage
 
-                Inte_phi   = np.zeros((n1d, n2d))
-                Inte_phidt = np.zeros((n1d, n2d))
-                storage    = np.zeros((n1d, n2d))
+                Inte_phi   = np.zeros(n1d)
+                Inte_phidt = np.zeros(n1d)
+                storage    = np.zeros(n1d)
 
                 Inte_phi   = BI.Integrate_flux(alpha, Yb, bed_l, bed_h)
                 Inte_phidt = BIdt.Integrate_flux(alphadt, Yb, beddt_l, beddt_h)
@@ -216,8 +190,8 @@ class Mass_Budget:
 
                 ############# flux
 
-                Inte_uphi = np.zeros((n1d, n2d))
-                uphiflux  = np.zeros((n1d, n2d))
+                Inte_uphi = np.zeros(n1d)
+                uphiflux  = np.zeros(n1d)
                 Inte_phi = BI.Integrate_flux(uphi, Yb, bed_l, bed_h) + BIdt.Integrate_flux(uphidt, Yb, beddt_l, beddt_h)
                 uphiflux  = BI.x_deri(Inte_phi, xbed)
 

@@ -29,10 +29,10 @@ class Filter_Snapshot:
         (n1d, ny, n2d) = np.shape(Xb)
     
         self.ny  = ny
-        self.xbed = Xb[:, 0, 0]
+        #self.xbed = Xb[:, 0, 0]
         self.Yb = Yb
         self.Xb = Xb
-        zbed = Zb[0, 0, :]
+        #zbed = Zb[0, 0, :]
 
         if dim =='2D':
             self.xbed = Xb[:, 0, 0]
@@ -40,6 +40,7 @@ class Filter_Snapshot:
         elif dim == '3D':
             self.xbed = Xb[:, 0, :]
             self.zbed = Zb[:, 0, :]
+            print ("Shape in Filter snapshot xbed = \t", Xb[:, 0, :].shape)
         
         try:
             proc = subprocess.Popen(['foamListTimes', '-case', sol], stdout = subprocess.PIPE)

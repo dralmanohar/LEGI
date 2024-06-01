@@ -171,11 +171,16 @@ class Budget_Integrand:
                 ybed_l[i, j] = self.Yb[i, bed_l[i, j], j]
                 ybed_h[i, j] = self.Yb[i, bed_h[i, j], j]
 
-            return bed_l, bed_h, ybed_l, ybed_h
+        return bed_l, bed_h, ybed_l, ybed_h
 
     def x_deri(self, A, x):
 
+        #print ("x_deri = \t", x.shape)
+
         deri_x = np.zeros(A.shape)
+
+        x = x[:, 0]
+        #print ("x_deri = \t", x.shape)
 
         for i in range(len(x)):
                 
@@ -193,6 +198,8 @@ class Budget_Integrand:
     def z_deri_2D(self, A, z):
 
         deri_z = np.zeros(A.shape)
+        
+        z = z[0, :]
 
         for i in range(len(z)):
 
